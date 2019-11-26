@@ -49,3 +49,5 @@ class D_ResidualBlock(nn.Module):
 		x = x + residual
 
 		return x
+
+
