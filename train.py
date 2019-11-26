@@ -18,11 +18,10 @@ def noise(size):
 	mu = 0
 	sigma = 1
 	for i in range(64):
-		n = torch.Tensor(np.random.normal(0,1,size))
-		n = Variable(n)
+		n = Variable(torch.Tensor(np.random.normal(0,1,size)))
 		all.append(n)
-	all = Variable(all)
-	return n
+	all = Variable(torch.Tensor(all))
+	return all
 
 # generate label 
 def ones_target(size):
