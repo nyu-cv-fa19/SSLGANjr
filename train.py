@@ -4,21 +4,24 @@ from torch.autograd import Variable
 import numpy as np
 from model import Generator, Discriminator
 
-loss = troch.nn.BCELoss()
+# define loss
+loss = torch.nn.BCELoss()
 
 # define rotation loss
 weight_rotation_loss_d = 1 
 weight_rotation_loss_g = 0.2
 
-
 # generate noise 
 noise_size = 128
-
 def noise(size):
+	all = []
 	mu = 0
 	sigma = 1
-	n = torch.Tensor(np.random.normal(0,1,size))
-	n = Variable(n)
+	for i in range(64):
+		n = torch.Tensor(np.random.normal(0,1,size))
+		n = Variable(n)
+		all.append(n)
+	all = Variable(all)
 	return n
 
 # generate label 
@@ -30,30 +33,27 @@ def zeros_target(size):
 	data = Variable(torch.zeros(size,0))
 	return data
 
-
 def generate_rotate_label(size):
 	target = []
 	for i in range(4):
 		target = target + [i]*size
 	return target
 
-
-
 alpha = 0.2
 beta = 1
+
 batch_size = 64
 num_examples = 64
 ROTATE_NUM = 4 
 
-
-# optimizer
-optimizer_G = torch.optim.Adam(model.parameters(), lr = 0.0002)
-optimizer_D = torch.optim.Adam(model.parameters(), lr = 0.0002)
-
-
 # get discriminator obj and generator obj
 discriminator = Discriminator()
 generator = Generator()
+
+# optimizer
+optimizer_G = torch.optim.Adam(discriminator.parameters(), lr = 0.0002)
+optimizer_D = torch.optim.Adam(generator.parameters(), lr = 0.0002)
+
 
 # training
 for epoch in range(epochs):
@@ -70,7 +70,7 @@ for epoch in range(epochs):
 		optimizer_G.zero_grad()
 
 		# true/false loss for G
-		G_loss = loss(Discriminator(fake_data), ones_target(N))
+		G_loss = loss(discriminator(fake_data)[0], zeros_target(N))
         
         '''
         Compute rotation loss
@@ -81,8 +81,9 @@ for epoch in range(epochs):
 		fake_data180 = torch.rot90(fake_data, 2, [2,3])
 		fake_data270 = torch.rot90(fake_data,1, [2,3])
 		fake_data_rot = torch.cat((fake_data, fake_data90, fake_data180, fake_data270),0)
-        num_examples = generate_rotate_label(64) #[0,0,0,0,1,1,1,1,2,2,2,2]
-		pred_rot = torch.log(Discriminator(fake_data_rot))
+        
+		num_examples = generate_rotate_label(64) #[0,0,0,0,1,1,1,1,2,2,2,2]
+		pred_rot = torch.log(discriminator(fake_data_rot)[2])
 
 		# generate one hot vector according to rot label
 		one_hot_label = torch.zeros([64*4,ROTATE_NUM], dtype = torch.int32)
@@ -108,25 +109,23 @@ for epoch in range(epochs):
 
 		optimizer_D.zero_grad()
         
-		prediction_real = Discriminator(real_data)
+		prediction_real = discriminator(real_data)[0]
 		D_loss_real = loss(prediction_real, ones_target(N))
 
-		prediction_fake = discriminator(fake_data)
+		prediction_fake = discriminator(fake_data)[0]
 		D_loss_fake = loss(prediction_fake,zeros_target(N))
 		D_loss = D_loss_real + D_loss_fake
-
 
 		'''
         Compute rotation loss
         1. generate images with rotations : 0 90 180 270
         2. compute loss  
-
 		'''
 		real_data90 = torch.rot90(real_data, 3, [2,3])
 		real_data180 = torch.rot90(real_data, 2, [2,3])
 		real_data270 = torch.rot90(real_data,1, [2,3])
 		real_data_rot = torch.cat((real_data, real_data90, real_data180, real_data270),0)
-		pred_rot = Discriminator(real_data_rot)
+		pred_rot = discriminator(real_data_rot)[2]
 
 		pred = torch.matmul(one_hot_label, pred_rot) 
 		result = torch.sum(pred,dim=1)
