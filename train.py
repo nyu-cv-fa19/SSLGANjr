@@ -4,9 +4,7 @@ from torch.autograd import Variable
 import numpy as np
 from model import Generator, Discriminator
 
-
-
-adversarial_loss = troch.nn.BCELoss()
+loss = troch.nn.BCELoss()
 
 # define rotation loss
 weight_rotation_loss_d = 1 
