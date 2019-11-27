@@ -3,6 +3,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 from model import Generator, Discriminator
+from data import train_loader
 
 # define loss
 loss = torch.nn.BCELoss()
@@ -56,7 +57,7 @@ optimizer_D = torch.optim.Adam(generator.parameters(), lr = 0.0002)
 # training
 for epoch in range(epochs):
 
-	for nth_batch, (real_batch,_) in enumerate(dataloader):
+	for nth_batch, (real_batch,_) in enumerate(train_loader):
 		
 		N = real_batch.size(0)
 
