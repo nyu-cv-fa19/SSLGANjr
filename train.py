@@ -127,13 +127,14 @@ for epoch in range(epochs):
 		D_loss = beta * D_rot_loss + D_loss
 
 		D_loss.backward()
-                optimizer_D.step()
-                # print loss and accuracy
-                if nth_batch % 100 == 0:
-					print('Training epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-						epoch, nth_batch * len(real_batch), len(train_loader.dataset),
-						100. * nth_batch / len(train_loader), D_loss.item() )
-						)
+        optimizer_D.step()
+        
+        # print loss and accuracy
+        if nth_batch % 100 == 0:
+        	print('Training epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+        		epoch, nth_batch * len(real_batch), len(train_loader.dataset),
+        		100. * nth_batch / len(train_loader), D_loss.item())
+        	)
 
 
 
