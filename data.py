@@ -68,8 +68,8 @@ trainset = get_dataset(dataset, split='train')
 testset = get_dataset(dataset, split='test')
 
 # create loader with data, so that we can iterate over it
-train_loader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)
-test_loader  = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=2)
+train_loader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
+test_loader  = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
 
 print(trainset[0][0].shape)
 
