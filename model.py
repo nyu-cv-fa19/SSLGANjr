@@ -41,7 +41,7 @@ class Generator(nn.Module):
 
 class Discriminator(nn.Module):
 
-	def __init__(self,block, in_channels, num_blocks):
+	def __init__(self, in_channels):
 
 		super(Discriminator,self).__init__()
 
