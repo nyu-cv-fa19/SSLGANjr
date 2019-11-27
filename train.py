@@ -11,6 +11,12 @@ loss = torch.nn.BCELoss()
 weight_rotation_loss_d = 1 
 weight_rotation_loss_g = 0.2
 
+# check cuda availability
+if torch.cuda.is_available()
+	print('running on cuda')
+else
+	print('running on cpu')
+
 # generate noise 
 noise_size = 128
 def noise(size):
