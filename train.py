@@ -15,7 +15,7 @@ weight_rotation_loss_g = 0.2
 # check cuda availability
 if torch.cuda.is_available():
   print('running on cuda')
-else
+else:
   print('running on cpu')
 
 # generate noise
