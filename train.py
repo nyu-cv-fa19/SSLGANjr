@@ -71,11 +71,6 @@ for epoch in range(epochs):
 		# true/false loss for G
 		G_loss = loss(discriminator(fake_data)[0], zeros_target(N))
         
-               '''
-               Compute rotation loss
-               1. generate images with rotations : 0 90 180 270
-               2. compute loss  
-		'''
 		fake_data90 = torch.rot90(fake_data, 3, [2,3])
 		fake_data180 = torch.rot90(fake_data, 2, [2,3])
 		fake_data270 = torch.rot90(fake_data,1, [2,3])
@@ -133,13 +128,12 @@ for epoch in range(epochs):
 
 		D_loss.backward()
                 optimizer_D.step()
-
                 # print loss and accuracy
                 if nth_batch % 100 == 0:
-			print('Training epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-        		epoch, nth_batch * len(real_batch), len(train_loader.dataset),
-        		100. * nth_batch / len(train_loader), D_loss.item() 
-        		))
+					print('Training epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+						epoch, nth_batch * len(real_batch), len(train_loader.dataset),
+						100. * nth_batch / len(train_loader), D_loss.item() )
+						)
 
 
 
