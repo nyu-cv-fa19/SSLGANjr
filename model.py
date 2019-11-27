@@ -29,13 +29,15 @@ class Generator(nn.Module):
   def forward(self,x):
     x = self.fc(x)
     x = x.view(-1, 256, self.s, self.s)
+
+    print(x.size())
     x = self.res1(x)
     x = self.res2(x)
     x = self.res3(x)
     x = self.bn(x)
     x = self.relu(x)
     x = self.conv(x)
-    x = self.tahn(x)
+    x = self.tanh(x)
     return x
 
 class Discriminator(nn.Module):
@@ -51,7 +53,7 @@ class Discriminator(nn.Module):
     self.res3 = D_ResidualBlock(128, 128)
     self.res4 = D_ResidualBlock(128, 128)
 
-    self.relu = nn.ReLu()
+    self.relu = nn.ReLU()
     self.sigmoid = nn.Sigmoid()
     self.softmax = nn.Softmax()
 

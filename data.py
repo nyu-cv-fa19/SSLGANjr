@@ -82,7 +82,7 @@ def imshow(img):
     img = img * normalizing_std + normalizing_mean     # unnormalize
     npimg = img.numpy()
     plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.show()
+    # plt.show()
 
 # get some random training images
 dataiter = iter(train_loader)

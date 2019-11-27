@@ -8,6 +8,8 @@ from data import train_loader
 # define loss
 loss = torch.nn.BCELoss()
 
+epochs = 10
+
 # define rotation loss
 weight_rotation_loss_d = 1
 weight_rotation_loss_g = 0.2
@@ -25,7 +27,8 @@ def noise(size):
   mu = 0
   sigma = 1
   for i in range(64):
-    n = Variable(torch.Tensor(np.random.normal(0,1,size)))
+    #n = Variable(torch.Tensor(np.random.normal(0,1,size)))
+    n = np.random.normal(0,1,size)
     all.append(n)
   all = Variable(torch.Tensor(all))
 
@@ -82,12 +85,13 @@ for epoch in range(epochs):
 
     # prepare real data and fake data
     real_data = Variable(real_batch)
-    fake_data = generator(noise(N))
+    fake_data = generator(noise(128))
 
     if torch.cuda.is_available():
       real_data = real_data.cuda()
       fake_data = fake_data.cuda()
-
+    
+    print('line 94')
     # ---------------------------generator training--------------------------------
     optimizer_G.zero_grad()
 
