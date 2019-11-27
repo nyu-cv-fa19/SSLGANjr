@@ -21,6 +21,7 @@ def noise(size):
 		n = Variable(torch.Tensor(np.random.normal(0,1,size)))
 		all.append(n)
 	all = Variable(torch.Tensor(all))
+	# if torch.cuda.is_available(): return all.cuda()
 	return all
 
 # generate label 
@@ -49,6 +50,10 @@ ROTATE_NUM = 4
 discriminator = Discriminator(3)
 generator = Generator(128,3,32)
 
+# if torch.cuda.is_available():
+# 	discriminator.cuda()
+# 	generator.cuda()
+
 # optimizer
 optimizer_G = torch.optim.Adam(discriminator.parameters(), lr = 0.0002)
 optimizer_D = torch.optim.Adam(generator.parameters(), lr = 0.0002)
@@ -60,9 +65,13 @@ for epoch in range(epochs):
 		
 		N = real_batch.size(0)
 
-                # prepare real data and fake data
+		# prepare real data and fake data
 		real_data = Variable(real_batch)
 		fake_data = generator(noise(N))
+
+		# if torch.cuda.is_available():
+		# 	real_data = real_data.cuda()
+		# 	fake_data = fake_data.cuda()
 
 		# ---------------------------generator training--------------------------------
 		optimizer_G.zero_grad()
