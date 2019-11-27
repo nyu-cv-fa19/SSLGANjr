@@ -28,7 +28,7 @@ class Generator(nn.Module):
 
 	def forward(self,x):
 		x = self.fc(x)
-                x = x.view(-1, 256 * self.s * self.s)
+                x = x.view(-1, 256, self.s, self.s)
 		x = self.res1(x)
 		x = self.res2(x)
 		x = self.res3(x)
