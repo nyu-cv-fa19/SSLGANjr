@@ -8,6 +8,8 @@ from data import train_loader, dataset
 # define loss
 loss = torch.nn.BCELoss()
 
+epochs = 10
+
 # define rotation loss
 weight_rotation_loss_d = 1
 weight_rotation_loss_g = 0.2
@@ -25,7 +27,8 @@ def noise(size):
   mu = 0
   sigma = 1
   for i in range(64):
-    n = Variable(torch.Tensor(np.random.normal(0,1,size)))
+    #n = Variable(torch.Tensor(np.random.normal(0,1,size)))
+    n = np.random.normal(0,1,size)
     all.append(n)
   all = Variable(torch.Tensor(all))
 
@@ -42,7 +45,7 @@ def ones_target(size):
   return data
 
 def zeros_target(size):
-  data = Variable(torch.zeros(size,0))
+  data = Variable(torch.zeros(size,1))
 
   if torch.cuda.is_available():
     return data.cuda()
@@ -87,17 +90,20 @@ for epoch in range(epochs):
 
     # prepare real data and fake data
     real_data = Variable(real_batch)
-    fake_data = generator(noise(N))
+    fake_data = generator(noise(noise_size))
 
     if torch.cuda.is_available():
       real_data = real_data.cuda()
       fake_data = fake_data.cuda()
-
+    
+    print('line 94')
     # ---------------------------generator training--------------------------------
     optimizer_G.zero_grad()
+    #discriminator(real_data)
 
     # true/false loss for G
-    G_loss = loss(discriminator(fake_data)[0], zeros_target(N))
+    x1,x2,x3,x4 = discriminator(fake_data)
+    G_loss = loss(x1, zeros_target(N))
 
     fake_data90 = torch.rot90(fake_data, 3, [2,3])
     fake_data180 = torch.rot90(fake_data, 2, [2,3])
@@ -105,10 +111,11 @@ for epoch in range(epochs):
     fake_data_rot = torch.cat((fake_data, fake_data90, fake_data180, fake_data270),0)
 
     num_examples = generate_rotate_label(64) #[0,0,0,0,1,1,1,1,2,2,2,2]
-    pred_rot = torch.log(discriminator(fake_data_rot)[2])
+    x,y,h,w = discriminator(fake_data_rot)
+    pred_rot = torch.log(h)
 
     # generate one hot vector according to rot label
-    one_hot_label = torch.zeros([64*4,ROTATE_NUM], dtype = torch.int32)
+    one_hot_label = torch.zeros([64*4,ROTATE_NUM], dtype = torch.float32)
     for i in range(64*4):
       if num_examples[i] == 0:
         one_hot_label[i][0] = 1
@@ -118,13 +125,14 @@ for epoch in range(epochs):
         one_hot_label[i][2] = 1
       if num_examples[i] == 3:
         one_hot_label[i][3] = 1
-
-    pred = torch.matmul(one_hot_label, pred_rot)
+    print(one_hot_label.type())
+    print(pred_rot.type())
+    pred = torch.matmul(one_hot_label, torch.t(pred_rot))
     result = torch.sum(pred,dim=1)
     G_rot_loss = torch.mean(result)
     G_loss = alpha * G_rot_loss + G_loss
 
-    G_loss.backward()
+    G_loss.backward(retain_graph=True)
     optimizer_G.step()
 
     # ------------------------discriminator training--------------------------
@@ -149,12 +157,12 @@ for epoch in range(epochs):
     real_data_rot = torch.cat((real_data, real_data90, real_data180, real_data270),0)
     pred_rot = discriminator(real_data_rot)[2]
 
-    pred = torch.matmul(one_hot_label, pred_rot)
+    pred = torch.matmul(one_hot_label, torch.t(pred_rot))
     result = torch.sum(pred,dim=1)
     D_rot_loss = torch.mean(result)
     D_loss = beta * D_rot_loss + D_loss
 
-    D_loss.backward()
+    D_loss.backward(retain_graph=True)
     optimizer_D.step()
 
     # print loss and accuracy
