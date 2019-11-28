@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 from model import Generator, Discriminator
-from data import train_loader
+from data import train_loader, dataset
 
 # define loss
 loss = torch.nn.BCELoss()
@@ -64,9 +64,14 @@ batch_size = 64
 num_examples = 64
 ROTATE_NUM = 4
 
+if dataset == 'mnist':
+  in_channels = 1
+else:
+  in_channels = 3
+
 # get discriminator obj and generator obj
-discriminator = Discriminator(1)
-generator = Generator(128,1,32)
+discriminator = Discriminator(in_channels)
+generator = Generator(128,in_channels,32)
 
 if torch.cuda.is_available():
   discriminator.cuda()
