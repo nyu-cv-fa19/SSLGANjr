@@ -20,7 +20,7 @@ class Generator(nn.Module):
     self.res2 = G_ResidualBlock(256,256, upsample = True)
     self.res3 = G_ResidualBlock(256,256, upsample = True)
 
-    self.fc = nn.Linear(128,s*s*256)
+    self.fc = nn.Linear(z_size,s*s*256)
     self.bn = nn.BatchNorm2d(256)
     self.relu = nn.ReLU()
     self.tanh = nn.Tanh()
@@ -46,7 +46,7 @@ class Discriminator(nn.Module):
 
     super(Discriminator,self).__init__()
 
-    self.in_channels = in_channels
+    self.in_channels = 1
 
     self.res1 = D_ResidualBlock(in_channels, 128, downsample=True, first_block=True)
     self.res2 = D_ResidualBlock(128, 128, downsample=True)
@@ -70,6 +70,10 @@ class Discriminator(nn.Module):
     out_logit = self.fc1(x)
     out = self.sigmoid(out_logit)
     pre_logits = self.fc2(x)
+    # print(pre_logits)
+    # print(pre_logits[0])
+    # print(pre_logits.size())
     pre = self.softmax(pre_logits)
+    print(pre)
 
     return out, out_logit, pre, pre_logits
