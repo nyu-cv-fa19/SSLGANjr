@@ -193,11 +193,11 @@ for epoch in range(epochs):
         100. * nth_batch / len(train_loader), D_loss.item())
       )
 
-      # save model 
-    discriminator_file = 'discriminator_' + str(epoch) + '.pth'
-    torch.save(discriminator.state_dict(), discriminator_file)
-    generator_file = 'generator_' + str(epoch) + '.pth'
-    torch.save(generator.state_dict(), generator_file)   
+  # save model 
+  discriminator_file = 'discriminator_' + str(epoch) + '.pth'
+  torch.save(discriminator.state_dict(), discriminator_file)
+  generator_file = 'generator_' + str(epoch) + '.pth'
+  torch.save(generator.state_dict(), generator_file)   
 
 
     
