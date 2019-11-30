@@ -8,7 +8,7 @@ from data import train_loader, dataset
 # define loss
 loss = torch.nn.BCELoss()
 
-epochs = 10
+epochs = 10 #?
 
 # define rotation loss
 weight_rotation_loss_d = 1
@@ -28,7 +28,7 @@ def noise(size):
   sigma = 1
   for i in range(64):
     #n = Variable(torch.Tensor(np.random.normal(0,1,size)))
-    n = np.random.normal(0,1,size)
+    n = np.random.normal(mu,sigma,size)
     all.append(n)
   all = Variable(torch.Tensor(all))
 
@@ -135,6 +135,13 @@ for epoch in range(epochs):
     G_loss.backward(retain_graph=True)
     optimizer_G.step()
 
+    if nth_batch % 100 == 0:
+      print('Training epoch: {} [{}/{} ({:.0f}%)]\tGenerator Loss: {:.6f}'.format(
+        epoch, nth_batch * len(real_batch), len(train_loader.dataset),
+        100. * nth_batch / len(train_loader), G_loss.item())
+      )
+      print('\n')
+
     # ------------------------discriminator training--------------------------
 
     optimizer_D.zero_grad()
@@ -167,8 +174,14 @@ for epoch in range(epochs):
 
     # print loss and accuracy
     if nth_batch % 100 == 0:
-      print('Training epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+      print('Training epoch: {} [{}/{} ({:.0f}%)]\tDiscriminator Loss: {:.6f}'.format(
         epoch, nth_batch * len(real_batch), len(train_loader.dataset),
         100. * nth_batch / len(train_loader), D_loss.item())
       )
+
+    # save model 
+    discriminator_file = 'discriminator_' + str(epoch) + '.pth'
+    torch.save(discriminator.state_dict(), discriminator_file)
+    generator_file = 'generator_' + str(epoch) + '.pth'
+    torch.save(generator.state_dict(), generator_file)   
 

@@ -64,10 +64,12 @@ def get_dataset(name, split='train', transform=None,
                               download=download)
 							  
 # load data
-trainset = get_dataset(dataset, split='train')
 testset = get_dataset(dataset, split='test')
+trainset = get_dataset(dataset, split='train')
 
-# create loader with data, so that we can iterate over it
+
+# create loader with data, so that we can trainset = get_dataset(dataset, split='train')
+iterate over it
 train_loader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
 test_loader  = torch.utils.data.DataLoader(testset, batch_size=batch_size, shuffle=False, num_workers=4)
 
