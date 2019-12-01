@@ -4,9 +4,9 @@ from torch.autograd import Variable
 import numpy as np
 from model import Generator, Discriminator
 from data import train_loader, dataset
+import torch.nn.functional as F
 
 # define loss
-
 epochs = 10
 
 # define rotation loss
@@ -58,8 +58,8 @@ def generate_rotate_label(size):
 
 # define hinge loss function for discriminator
 def get_d_loss(real_logits, fake_logits):
-  D_real_loss = torch.mean(nn.ReLU( 1 - real_logits))
-  D_fake_loss = torch.mean(nn.ReLU( 1 + fake_logits))
+  D_real_loss = torch.mean(F.relu( 1 - real_logits))
+  D_fake_loss = torch.mean(F.relu( 1 + fake_logits))
   D_loss = -D_real_loss + D_fake_loss 
   return D_loss
 
@@ -169,7 +169,7 @@ for epoch in range(epochs):
     real_data180 = torch.rot90(real_data, 2, [2,3])
     real_data270 = torch.rot90(real_data,1, [2,3])
     real_data_rot = torch.cat((real_data, real_data90, real_data180, real_data270),0)
-    _,_,h1,_ = discriminator(real_data_rot)[2]
+    _,_,h1,_ = discriminator(real_data_rot)
     pred_rot = torch.log(h + 1e-10)
 
     pred = torch.matmul(one_hot_label, torch.t(pred_rot))
@@ -182,7 +182,7 @@ for epoch in range(epochs):
 
     # print loss and accuracy
     if nth_batch % 100 == 0:
-      print('Training epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+      print('Training epoch: {} [{}/{} ({:.0f}%)]\t Training Loss: {:.6f}'.format(
         epoch, nth_batch * len(real_batch), len(train_loader.dataset),
         100. * nth_batch / len(train_loader), D_loss.item())
       )
