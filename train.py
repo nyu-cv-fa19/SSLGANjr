@@ -170,7 +170,7 @@ for epoch in range(epochs):
     real_data270 = torch.rot90(real_data,1, [2,3])
     real_data_rot = torch.cat((real_data, real_data90, real_data180, real_data270),0)
     _,_,h1,_ = discriminator(real_data_rot)
-    pred_rot = torch.log(h + 1e-10)
+    pred_rot = torch.log(h1 + 1e-10)
 
     pred = torch.matmul(one_hot_label, torch.t(pred_rot))
     result = torch.sum(pred,dim=1)
