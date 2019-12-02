@@ -136,8 +136,9 @@ for epoch in range(epochs):
         one_hot_label[i][2] = 1
       if num_examples[i] == 3:
         one_hot_label[i][3] = 1
-    print(one_hot_label.type())
-    print(pred_rot.type())
+    if torch.cuda.is_available():
+      one_hot_label = one_hot_label.cuda()
+      
     pred = torch.matmul(one_hot_label, torch.t(pred_rot))
     result = torch.sum(pred,dim=1)
     G_rot_loss = torch.mean(result)
