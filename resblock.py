@@ -27,7 +27,6 @@ class G_ResidualBlock(nn.Module):
   def forward(self,x):
 
     residual = x
-    print(residual.size())
     x = self.bn1(x)
     x = F.relu(x)
     if self.upsample:
@@ -42,7 +41,6 @@ class G_ResidualBlock(nn.Module):
     if self.upsample:
       residual = self.upsample(residual)
     
-    print(x.size())
     x = x + residual
     x = F.relu(x)
     return x

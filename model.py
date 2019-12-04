@@ -30,7 +30,6 @@ class Generator(nn.Module):
     x = self.fc(x)
     x = x.view(-1, 256, self.s, self.s)
 
-    print(x.size())
     x = self.res1(x)
     x = self.res2(x)
     x = self.res3(x)
@@ -70,10 +69,7 @@ class Discriminator(nn.Module):
     out_logit = self.fc1(x)
     out = self.sigmoid(out_logit)
     pre_logits = self.fc2(x)
-    # print(pre_logits)
-    # print(pre_logits[0])
-    # print(pre_logits.size())
+    
     pre = self.softmax(pre_logits)
-    print(pre)
 
     return out, out_logit, pre, pre_logits
