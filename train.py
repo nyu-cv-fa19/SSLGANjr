@@ -178,7 +178,7 @@ for epoch in range(epochs):
     if nth_batch % 100 == 0:
       print('Training epoch: {} [{}/{} ({:.0f}%)]\t Generator Loss: {:.6f}'.format(
         epoch+1, nth_batch * len(real_batch), len(train_loader.dataset),
-        100. * nth_batch / len(train_loader), D_loss.item())
+        100. * nth_batch / len(train_loader), G_loss.item())
       )
       print('\n')
 
