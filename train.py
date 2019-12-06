@@ -3,9 +3,10 @@ import torch.nn as nn
 from torch.autograd import Variable
 import numpy as np
 from model import Generator, Discriminator
-from data import train_loader, dataset
+from data import train_loader, dataset,trainset
 import torch.nn.functional as F
 from ops import noise, generate_rotate_label,get_d_loss, get_g_loss
+from torch.autograd import grad 
 
 # check cuda availability
 if torch.cuda.is_available():
@@ -13,30 +14,42 @@ if torch.cuda.is_available():
 else:
   print('running on cpu')
 
+def calc_gp(real_data, fake_data, batch_size):
+  
+  # Calculate interpolation
+  t = torch.rand(batch_size, 1, 1, 1).expand_as(real_data)
+  if torch.cuda.is_available():
+    t = t.cuda()
 
-epochs = 20
+  interp = Variable(t * real_data.data + (1 - t) * fake_data.data, requires_grad=True)
+  if torch.cuda.is_available():
+    interp = interp.cuda()
 
+  _, prob_interpolated, _, _ = discriminator(interp)
+
+  if torch.cuda.is_available():
+    gradients = grad( outputs=prob_interpolated, 
+                      inputs=interp,
+                      grad_outputs=torch.ones(prob_interpolated.size()).cuda(),
+                      create_graph=True, retain_graph=True)[0]
+  else:
+    gradients = grad( outputs=prob_interpolated, 
+                    inputs=interp,
+                    grad_outputs=torch.ones(prob_interpolated.size()),
+                    create_graph=True, retain_graph=True)[0]
+
+  gradients = gradients.view(batch_size, -1)
+  gradients_norm = torch.sqrt(torch.sum(torch.pow(gradients,2), dim=1) + 1e-10)
+  return weight * torch.pow(gradients_norm - 1,2).mean()
+
+epochs = 100
 # define weights for rotation loss 
 weight_rotation_loss_d = 1
 weight_rotation_loss_g = 0.2
+weight = 10
 
 # noise size 
 noise_size = 128
-
-# generate label
-def ones_target(size):
-  data = Variable(torch.ones(size,1))
-
-  if torch.cuda.is_available():
-    return data.cuda()
-  return data
-
-def zeros_target(size):
-  data = Variable(torch.zeros(size,1))
-
-  if torch.cuda.is_available():
-    return data.cuda()
-  return data
 
 alpha = 0.2
 beta = 1
@@ -65,6 +78,8 @@ optimizer_D = torch.optim.Adam(generator.parameters(), lr = 0.0002, betas = beta
 
 # training
 for epoch in range(epochs):
+  
+  train_loader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=4)
 
   for nth_batch, (real_batch,_) in enumerate(train_loader):
 
@@ -72,7 +87,18 @@ for epoch in range(epochs):
 
     # prepare real data and fake data
     real_data = Variable(real_batch)
-    fake_data = generator(noise(noise_size))
+    fake_data = generator(noise(noise_size,N))
+
+    real_data90 = torch.rot90(real_data, 3, [2,3])
+    real_data180 = torch.rot90(real_data, 2, [2,3])
+    real_data270 = torch.rot90(real_data,1, [2,3])
+    real_data = torch.cat((real_data, real_data90, real_data180, real_data270),0)
+    
+    fake_data90 = torch.rot90(fake_data, 3, [2,3])
+    fake_data180 = torch.rot90(fake_data, 2, [2,3])
+    fake_data270 = torch.rot90(fake_data,1, [2,3])
+    fake_data = torch.cat((fake_data, fake_data90, fake_data180, fake_data270),0)
+
 
     if torch.cuda.is_available():
       real_data = real_data.cuda()
@@ -81,26 +107,23 @@ for epoch in range(epochs):
     # ------------------------discriminator training--------------------------
 
     optimizer_D.zero_grad()
-  
-    _,d_pred_real_logits,_,_ = discriminator(real_data)
-    _,d_pred_fake_logits,_,_ = discriminator(fake_data)
 
-    D_loss = get_d_loss(d_pred_real_logits, d_pred_fake_logits)
+    _,d_pred_real_logits, d_pred_real_prob,_ = discriminator(real_data)
+    _,d_pred_fake_logits,_,_ = discriminator(fake_data)
+    
+    gp = calc_gp(real_data[:N], fake_data[:N], N)
+    D_loss = get_d_loss(d_pred_real_logits[:N], d_pred_fake_logits[:N]) + gp
 
     '''
                 Compute rotation loss
                 1. generate images with rotations : 0 90 180 270
                 2. compute loss
     '''
-    real_data90 = torch.rot90(real_data, 3, [2,3])
-    real_data180 = torch.rot90(real_data, 2, [2,3])
-    real_data270 = torch.rot90(real_data,1, [2,3])
-    real_data_rot = torch.cat((real_data, real_data90, real_data180, real_data270),0)
-
+    
     # generate one hot vector according to rot label
-    num_examples = generate_rotate_label(64) #[0,0,0,0,1,1,1,1,2,2,2,2]
-    one_hot_label = torch.zeros([64*4,ROTATE_NUM], dtype = torch.float32)
-    for i in range(64*4):
+    num_examples = generate_rotate_label(N) #[0,0,0,0,1,1,1,1,2,2,2,2]
+    one_hot_label = torch.zeros([N*4,ROTATE_NUM], dtype = torch.float32)
+    for i in range(N*4):
       if num_examples[i] == 0:
         one_hot_label[i][0] = 1
       if num_examples[i] == 1:
@@ -112,12 +135,8 @@ for epoch in range(epochs):
     if torch.cuda.is_available():
       one_hot_label = one_hot_label.cuda()
 
-    _,_,d_rot_prob,_ = discriminator(real_data_rot)
-    pred_rot = torch.log(d_rot_prob + 1e-10)
-
-    #pred = torch.matmul(one_hot_label, torch.t(pred_rot))
+    pred_rot = torch.log(d_pred_real_prob + 1e-10)
     pred = one_hot_label * pred_rot
-
     result = torch.sum(pred,dim=1)
     D_rot_loss = -torch.mean(result)
     D_loss = beta * D_rot_loss + D_loss
@@ -136,24 +155,15 @@ for epoch in range(epochs):
     # ---------------------------generator training--------------------------------
     optimizer_G.zero_grad()
     
-
     # true/false loss for G
-    _,pred,_,_ = discriminator(fake_data)
+    _,g_pred_fake_logits,g_pred_real_prob,_ = discriminator(fake_data)
     
-    G_loss = get_g_loss(pred)
+    G_loss = get_g_loss(g_pred_fake_logits[:N])
 
-    fake_data90 = torch.rot90(fake_data, 3, [2,3])
-    fake_data180 = torch.rot90(fake_data, 2, [2,3])
-    fake_data270 = torch.rot90(fake_data,1, [2,3])
-    fake_data_rot = torch.cat((fake_data, fake_data90, fake_data180, fake_data270),0)
-
-    num_examples = generate_rotate_label(64) #[0,0,0,0,1,1,1,1,2,2,2,2]
-    _,_,h,_ = discriminator(fake_data_rot)
-    pred_rot = torch.log(h + 1e-10)
-
+    num_examples = generate_rotate_label(N) #[0,0,0,0,1,1,1,1,2,2,2,2]
     # generate one hot vector according to rot label
-    one_hot_label = torch.zeros([64*4,ROTATE_NUM], dtype = torch.float32)
-    for i in range(64*4):
+    one_hot_label = torch.zeros([N*4,ROTATE_NUM], dtype = torch.float32)
+    for i in range(N*4):
       if num_examples[i] == 0:
         one_hot_label[i][0] = 1
       if num_examples[i] == 1:
@@ -164,10 +174,9 @@ for epoch in range(epochs):
         one_hot_label[i][3] = 1
     if torch.cuda.is_available():
       one_hot_label = one_hot_label.cuda()
-      
-    #pred = torch.matmul(one_hot_label, torch.t(pred_rot))
-    pred = one_hot_label * pred_rot
     
+    pred_rot = torch.log( g_pred_real_prob + 1e-10)
+    pred = one_hot_label * pred_rot
     result = torch.sum(pred,dim=1)
     G_rot_loss = -torch.mean(result)
     G_loss = alpha * G_rot_loss + G_loss

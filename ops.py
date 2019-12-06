@@ -3,12 +3,29 @@ import numpy as np
 from torch.autograd import Variable
 import torch.nn.functional as F
 
+
+# generate label
+def ones_target(size):
+  data = Variable(torch.ones(size,1))
+
+  if torch.cuda.is_available():
+    return data.cuda()
+  return data
+
+def zeros_target(size):
+  data = Variable(torch.zeros(size,1))
+
+  if torch.cuda.is_available():
+    return data.cuda()
+  return data
+
+
 # generate noise
-def noise(size):
+def noise(size,batch_size):
   all = []
   mu = 0
   sigma = 1
-  for i in range(64):
+  for i in range(batch_size):
     #n = Variable(torch.Tensor(np.random.normal(0,1,size)))
     n = np.random.normal(0,1,size)
     all.append(n)
