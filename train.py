@@ -73,8 +73,8 @@ if torch.cuda.is_available():
 
 # optimizer
 betas = (0.9,0.99)
-optimizer_G = torch.optim.Adam(discriminator.parameters(), lr = 0.0002, betas = betas)
-optimizer_D = torch.optim.Adam(generator.parameters(), lr = 0.0002, betas = betas)
+optimizer_G = torch.optim.Adam(generator.parameters(), lr = 0.0002, betas = betas)
+optimizer_D = torch.optim.Adam(discriminator.parameters(), lr = 0.0002, betas = betas)
 
 # training
 for epoch in range(epochs):
