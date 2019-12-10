@@ -162,7 +162,7 @@ class Trainer():
         for epoch in range(epochs):
             print("\nEpoch {}".format(epoch + 1))
             self.train_one_epoch(data_loader)
-            #if epoch % 20 == 0:
-            #    name = str(epoch) + 'th'
-            #    torch.save(trainer.G.state_dict(), './G_' + name + '.pt')
-            #    torch.save(trainer.D.state_dict(), './D_' + name + '.pt') 
+            if (epoch+1) % 20 == 0:
+                name = str(epoch+1) + 'th'
+                torch.save(self.G.state_dict(), './G_' + name + '.pt')
+                torch.save(self.D.state_dict(), './D_' + name + '.pt') 
