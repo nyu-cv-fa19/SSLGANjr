@@ -1,7 +1,8 @@
 from utils import noise
+import torch
 import torchvision.utils
 from dataloaders import get_cifar_dataloaders
-from Model import Generator
+from model import Generator
 #import cv2
 
 # reload generator model
