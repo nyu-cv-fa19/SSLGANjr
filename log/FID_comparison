@@ -44,6 +44,11 @@ $ python fid.py test-img/ GAN_G_140th-generated-img/ --gpu 0
 100%|██████████| 200/200 [04:00<00:00,  1.20s/it]
 FID:  153.77473306933751
 
+$ python fid.py test-img/ new_loss_G_140th-generated-img/ --gpu 0
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:42<00:00,  1.11s/it]
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:44<00:00,  1.12s/it]
+FID:  136.06083858035754
+
 ---
 
 $ python fid.py test-img/ SSL_G_120th-generated-img/ --gpu 0
