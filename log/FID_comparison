@@ -56,6 +56,11 @@ $ python fid.py test-img/ GAN_G_120th-generated-img/ --gpu 0
 100%|██████████| 200/200 [01:08<00:00,  2.93it/s]
 FID:  181.175019795653
 
+$ python fid.py test-img/ new_loss_G_120th-generated-img/ --gpu 0
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [04:06<00:00,  1.23s/it]
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [04:03<00:00,  1.22s/it]
+FID:  136.36455763036426
+
 ---
 
 $ python fid.py test-img/ SSL_G_100th-generated-img/ --gpu 0
@@ -68,17 +73,10 @@ $ python fid.py test-img/ GAN_G_100th-generated-img/ --gpu 0
 100%|██████████| 200/200 [01:08<00:00,  2.93it/s]
 FID:  156.10076361804673
 
----
-
-$ python fid.py test-img/ GAN_G_100th-generated-img/ --gpu 0
-100%|██████████| 200/200 [01:08<00:00,  2.91it/s]
-100%|██████████| 200/200 [01:08<00:00,  2.93it/s]
-FID:  156.10076361804673
-
-$ python fid.py test-img/ SSL_G_80th-generated-img/ --gpu 0
-100%|██████████| 200/200 [01:08<00:00,  2.91it/s]
-100%|██████████| 200/200 [01:08<00:00,  2.94it/s]
-FID:  145.24398146408436
+$ python fid.py test-img/ new_loss_G_100th-generated-img/ --gpu 0
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [04:36<00:00,  1.38s/it]
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [04:05<00:00,  1.23s/it]
+FID:  136.5423410685335
 
 ---
 
@@ -92,6 +90,11 @@ $ python fid.py test-img/ GAN_G_80th-generated-img/ --gpu 0
 100%|██████████| 200/200 [01:08<00:00,  2.94it/s]
 FID:  141.0609426049449
 
+$ python fid.py test-img/ new_loss_G_80th-generated-img/ --gpu 0
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:16<00:00,  1.02it/s]
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:20<00:00,  1.00s/it]
+FID:  130.4819056918122
+
 ---
 
 $ python fid.py test-img/ SSL_G_60th-generated-img/ --gpu 0
@@ -103,6 +106,11 @@ $ python fid.py test-img/ GAN_G_60th-generated-img/ --gpu 0
 100%|██████████| 200/200 [01:08<00:00,  2.91it/s]
 100%|██████████| 200/200 [01:08<00:00,  2.93it/s]
 FID:  126.43517761794789
+
+$ python fid.py test-img/ new_loss_G_60th-generated-img/ --gpu 0
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:15<00:00,  1.02it/s]
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:21<00:00,  1.01s/it]
+FID:  138.55614837707202
 
 ---
 
@@ -116,6 +124,11 @@ $ python fid.py test-img/ GAN_G_40th-generated-img/ --gpu 0
 100%|██████████| 200/200 [01:08<00:00,  2.94it/s]
 FID:  143.8172005768917
 
+$ python fid.py test-img/ new_loss_G_40th-generated-img/ --gpu 0
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:34<00:00,  1.07s/it]
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:26<00:00,  1.03s/it]
+FID:  161.89039898916843
+
 ---
 
 $ python fid.py test-img/ SSL_G_20th-generated-img/ --gpu 0
@@ -127,3 +140,8 @@ $ python fid.py test-img/ GAN_G_20th-generated-img/ --gpu 0
 100%|██████████| 200/200 [01:08<00:00,  2.91it/s]
 100%|██████████| 200/200 [01:08<00:00,  2.93it/s]
 FID:  191.42878899697058
+
+$ python fid.py test-img/ new_loss_G_20th-generated-img/ --gpu 0
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:30<00:00,  1.05s/it]
+100%|▒▒▒▒▒▒▒▒▒▒▒ 200/200 [03:17<00:00,  1.01it/s]
+FID:  211.963666201759
