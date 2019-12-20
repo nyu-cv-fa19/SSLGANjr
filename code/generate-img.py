@@ -31,6 +31,6 @@ folder = './generated-img/'
 for i in range(num_data):
     output = generator(noise(128,1))
     img = output[0]
-    print(img.size())
+    # print(img.size())
     img_name = folder + str(i+1) + 'th_img.png'
     save_image(img, img_name)
