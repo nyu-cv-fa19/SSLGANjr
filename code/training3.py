@@ -101,6 +101,9 @@ class Trainer():
         for i in range(4):
             dist = dist + dif[i] * dif[i]
         g_rot_loss = torch.sqrt(dist)[0]
+        
+        if torch.cuda.is_available():
+            g_rot_loss = g_rot_loss.cuda()
             
         #calculate rotation loss
         #g_fake_rot_loss = -torch.mean(torch.sum(one_hot_label * torch.log(g_fake_rot_prob + 1e-12),dim=1))
